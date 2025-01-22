@@ -5,9 +5,6 @@ Copyright (c) 2019 - present AppSeed.us
 
 import json
 from datetime import datetime
-
-from flask_restx import Resource, Api
-
 import flask
 from flask import render_template, redirect, request, url_for
 from flask_login import (
@@ -16,17 +13,13 @@ from flask_login import (
     logout_user
 )
 
-from flask_dance.contrib.github import github
-
 from apps import db, login_manager
 from apps.authentication import blueprint
 from apps.authentication.forms import LoginForm, CreateAccountForm
-from apps.authentication.models import Users
+from apps.authentication.models import cd_user
 
-from apps.authentication.util import verify_pass, generate_token
+from apps.authentication.util import verify_pass
 
-# Bind API -> Auth BP
-api = Api(blueprint)
 
 @blueprint.route('/')
 def route_default():
@@ -34,40 +27,24 @@ def route_default():
 
 # Login & Registration
 
-@blueprint.route("/github")
-def login_github():
-    """ Github login """
-    if not github.authorized:
-        return redirect(url_for("github.login"))
-
-    res = github.get("/user")
-    return redirect(url_for('home_blueprint.index'))
-
 @blueprint.route('/login', methods=['GET', 'POST'])
 def login():
     login_form = LoginForm(request.form)
-
     if flask.request.method == 'POST':
-
         # read form data
-        username = request.form['username']
+        email = request.form['email']
         password = request.form['password']
-
         #return 'Login: ' + username + ' / ' + password
-
         # Locate user
-        user = Users.query.filter_by(username=username).first()
-
+        user = cd_user.query.filter_by(email=email).first()
         # Check the password
         if user and verify_pass(password, user.password):
             login_user(user)
             return redirect(url_for('authentication_blueprint.route_default'))
-
         # Something (user or pass) is not ok
         return render_template('accounts/login.html',
-                               msg='Wrong user or password',
+                               msg='Wrong email or password',
                                form=login_form)
-
     if current_user.is_authenticated:
         return redirect(url_for('home_blueprint.index'))
     else:
@@ -79,34 +56,29 @@ def login():
 def register():
     create_account_form = CreateAccountForm(request.form)
     if 'register' in request.form:
-
-        username = request.form['username']
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
         email = request.form['email']
-
-        # Check usename exists
-        user = Users.query.filter_by(username=username).first()
-        if user:
-            return render_template('accounts/register.html',
-                                   msg='Username already registered',
-                                   success=False,
-                                   form=create_account_form)
-
+        # # Check usename exists
+        # user = cd_user.query.filter_by(email=email).first()
+        # if user:
+        #     return render_template('accounts/register.html',
+        #                            msg='Email already registered',
+        #                            success=False,
+        #                            form=create_account_form)
         # Check email exists
-        user = Users.query.filter_by(email=email).first()
+        user = cd_user.query.filter_by(email=email).first()
         if user:
             return render_template('accounts/register.html',
                                    msg='Email already registered',
                                    success=False,
                                    form=create_account_form)
-
         # else we can create the user
-        user = Users(**request.form)
+        user = cd_user(**request.form)
         db.session.add(user)
         db.session.commit()
-
         # Delete user from session
         logout_user()
-
         return render_template('accounts/register.html',
                                msg='User created successfully.',
                                success=True,
@@ -114,56 +86,6 @@ def register():
 
     else:
         return render_template('accounts/register.html', form=create_account_form)
-
-@api.route('/login/jwt/', methods=['POST'])
-class JWTLogin(Resource):
-    def post(self):
-        try:
-            data = request.form
-
-            if not data:
-                data = request.json
-
-            if not data:
-                return {
-                           'message': 'username or password is missing',
-                           "data": None,
-                           'success': False
-                       }, 400
-            # validate input
-            user = Users.query.filter_by(username=data.get('username')).first()
-            if user and verify_pass(data.get('password'), user.password):
-                try:
-
-                    # Empty or null Token
-                    if not user.api_token or user.api_token == '':
-                        user.api_token = generate_token(user.id)
-                        user.api_token_ts = int(datetime.utcnow().timestamp())
-                        db.session.commit()
-
-                    # token should expire after 24 hrs
-                    return {
-                        "message": "Successfully fetched auth token",
-                        "success": True,
-                        "data": user.api_token
-                    }
-                except Exception as e:
-                    return {
-                               "error": "Something went wrong",
-                               "success": False,
-                               "message": str(e)
-                           }, 500
-            return {
-                       'message': 'username or password is wrong',
-                       'success': False
-                   }, 403
-        except Exception as e:
-            return {
-                       "error": "Something went wrong",
-                       "success": False,
-                       "message": str(e)
-                   }, 500
-
 
 @blueprint.route('/logout')
 def logout():

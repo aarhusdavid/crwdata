@@ -11,7 +11,7 @@
     <div class="row">
       <div class="col-12">
 
-        {% include "includes/navigation-fullscreen.html" %}
+        <!-- include "includes/navigation-fullscreen.html" -->
 
       </div>
     </div>
@@ -69,9 +69,13 @@
 
                     {{ form.hidden_tag() }}
 
-                      <label>Username</label>
+                      <label>First Name</label>
                       <div class="mb-3">
-                        {{ form.username(placeholder="Username", class="form-control") }}
+                        {{ form.first_name(placeholder="First Name", class="form-control") }}
+                      </div>
+                      <label>Last Name</label>
+                      <div class="mb-3">
+                        {{ form.last_name(placeholder="Last Name", class="form-control") }}
                       </div>
                       <label>Email</label>
                       <div class="mb-3">

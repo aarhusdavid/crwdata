@@ -11,7 +11,7 @@
     <div class="row">
       <div class="col-12">
 
-        {% include "includes/navigation-fullscreen.html" %}
+        <!--  include "includes/navigation-fullscreen.html"  -->
 
       </div>
     </div>
@@ -25,10 +25,10 @@
             <div class="col-xl-4 col-lg-5 col-md-6 d-flex flex-column mx-auto">
               <div class="card card-plain mt-8">
                 <div class="card-header pb-0 text-left bg-transparent">
-                  <h3 class="font-weight-bolder text-info text-gradient">
-                    Soft UI Dashboard
+                  <h3 class="font-weight-bolder text-info text-dark" style="text-align: center;">
+                    Crwdata
                   </h3>
-                  <p class="mb-0">
+                  <p class="mb-0" style="text-align: center;">
                     {% if msg %}
                       <span class="text-danger">{{ msg | safe }}</span>
                     {% else %}
@@ -42,9 +42,9 @@
                     
                     {{ form.hidden_tag() }}
 
-                    <label>Username</label>
+                    <label>Email</label>
                     <div class="mb-3">
-                      {{ form.username(placeholder="Username", class="form-control") }}
+                      {{ form.email(placeholder="Email", class="form-control") }}
                     </div>
 
                     <label>Password</label>
@@ -53,11 +53,11 @@
                     </div>
 
                     <div class="text-center">
-                      <button type="submit" name="login" class="btn bg-gradient-info w-100 mt-4 mb-0">Sign IN</button>
+                      <button type="submit" name="login" class="btn bg-gradient-warning text-black w-100 mt-4 mb-0">Sign IN</button>
                     </div>
 
                     <div class="text-center">
-                      <a href="{{ url_for('authentication_blueprint.register') }}" class="btn bg-gradient-secondary w-100 mt-4 mb-0">Sign UP</a>
+                      <!-- <a href="{{ url_for('authentication_blueprint.register') }}" class="btn bg-gradient-secondary w-100 mt-4 mb-0">Sign UP</a> -->
                     </div>
 
                   </form>
@@ -82,18 +82,18 @@
                 </div>
               </div>
             </div>
-            <div class="col-md-6">
+            <!-- <div class="col-md-6">
               <div class="oblique position-absolute top-0 h-100 d-md-block d-none me-n8">
-                <div class="oblique-image bg-cover position-absolute fixed-top ms-auto h-100 z-index-0 ms-n6" style="background-image:url('{{ config.ASSETS_ROOT }}/img/curved-images/curved6.jpg')"></div>
+                <div class="oblique-image bg-cover position-absolute fixed-top ms-auto h-100 z-index-0 ms-n6" style="background-image:url('{{ config.ASSETS_ROOT }}/img/logos/crwdata.svg')"></div>
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
     </section>
   </main>
 
-  {% include "includes/footer-fullscreen.html" %}
+{% include "includes/footer-fullscreen.html" %}
 
 {% endblock content %}
 
@@ -103,44 +103,44 @@
 <script>
 
   // Save aKey in localStorage 
-  const asyncLocalStorage = {
-      setItem: function (key, value) {
-          return Promise.resolve().then(function () {
-              localStorage.setItem(key, value);
-          });
-      }
-  }
+//   const asyncLocalStorage = {
+//       setItem: function (key, value) {
+//           return Promise.resolve().then(function () {
+//               localStorage.setItem(key, value);
+//           });
+//       }
+//   }
 
-// Login hook  
-document.getElementsByTagName('form')[0].onsubmit = (e) => {
+// // Login hook  
+// document.getElementsByTagName('form')[0].onsubmit = (e) => {
 
-  e.preventDefault();
+//   e.preventDefault();
   
-  const formData = new FormData(e.target)
-  const username = formData.get('username');
-  const password = formData.get('password');
+//   const formData = new FormData(e.target)
+//   const email = formData.get('username');
+//   const password = formData.get('password');
 
-  fetch('/login/jwt/',{
-      method: 'POST',
-      body: JSON.stringify({
-          username: username,
-          password: password
-      }),
-      headers: {
-          'Content-Type': 'application/json'
-      }
-  })
-      .then((response) => response.json())
-      .then((res) => {
+//   fetch('/login/jwt/',{
+//       method: 'POST',
+//       body: JSON.stringify({
+//           email: email,
+//           password: password
+//       }),
+//       headers: {
+//           'Content-Type': 'application/json'
+//       }
+//   })
+//       .then((response) => response.json())
+//       .then((res) => {
 
-        //console.log('Token: ' + res.data); 
+//         //console.log('Token: ' + res.data); 
 
-        // store token in localStorage
-        asyncLocalStorage.setItem('token',res.data).then(result => {e.target.submit()})
+//         // store token in localStorage
+//         asyncLocalStorage.setItem('token',res.data).then(result => {e.target.submit()})
 
-      })
-      .catch((err) => {console.log(err)})   
-}
+//       })
+//       .catch((err) => {console.log(err)})   
+// }
 
 </script>
 
